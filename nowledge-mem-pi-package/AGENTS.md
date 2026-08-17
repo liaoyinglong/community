@@ -2,15 +2,24 @@
 
 You have access to the user's cross-tool knowledge through the `nmem` CLI and five installed skills: `read-working-memory`, `search-memory`, `distill-memory`, `save-thread`, and `status`.
 
-## Context at Session Start
+## Lazy Context by Default
 
-Load the user's current context at the beginning of every session. Prefer Context Bundle because it includes owner identity, resolved AI Identity, active scope, active rules, and Working Memory:
+Do **not** load Context Bundle or Working Memory automatically at the beginning of every Pi session. Keep ordinary, context-independent work free of Nowledge Mem prompt overhead.
+
+Read memory only when the current task has a real continuity signal, for example:
+
+- The user refers to previous work, an earlier decision, or an established preference.
+- The task resumes a named project, feature, bug, refactor, incident, or workflow.
+- The user asks about current priorities, recent activity, or their existing context.
+- Missing historical context would materially improve the answer.
+
+When full identity, active scope, rules, or Working Memory would help, use Context Bundle:
 
 ```bash
 nmem --json context --source-app pi
 ```
 
-If Context Bundle is not available in this runtime or the installed `nmem` is older, fall back to the lightweight Working Memory briefing:
+For the lighter daily briefing, use Working Memory only:
 
 ```bash
 nmem --json wm read
@@ -19,6 +28,8 @@ nmem --json wm read
 If this runtime already knows a project or agent lane, add `--space "<space name>"`. Multi-agent orchestrators can set `NMEM_AGENT_ID="<agent-slug>"` before launching Pi. Use `NMEM_HOST_AGENT_ID` only for stable host-local aliases, and `NMEM_SPACE` only when the whole run should override the identity's default space.
 
 If Context Bundle already includes Working Memory, do not immediately read Working Memory again. Don't re-read during the same session unless the user asks or the session context changes materially.
+
+The Pi extension follows the same lazy default. Set `NMEM_PLUGIN_AUTO_CONTEXT=1` before starting Pi only when you explicitly want the old eager startup Context Bundle injection behavior.
 
 ## Proactive Search
 
@@ -69,7 +80,7 @@ One strong memory is better than three weak ones.
 
 ## Thread Capture
 
-The Nowledge Mem Pi package includes an extension that automatically syncs completed Pi conversations as Mem threads. It captures the active Pi session branch after completed agent turns and at session boundaries.
+The Nowledge Mem Pi package includes an extension that automatically syncs completed Pi conversations as Mem threads. It captures the active Pi session branch after completed agent turns and at session boundaries. This remains automatic even when startup context injection is disabled.
 
 When the user explicitly asks for a checkpoint or handoff, create a curated summary with `nmem --json t create`. Be clear that this is a focused handoff in addition to automatic transcript sync. Include goals, decisions, files touched, risks, and next steps.
 
