@@ -5,6 +5,14 @@ All notable changes to the Nowledge Mem Pi package will be documented in this fi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Make startup Context Bundle / Working Memory injection opt-in for Pi. Normal Pi sessions now keep Nowledge Mem retrieval lazy and use the installed skills or `nmem` CLI only when prior context is relevant.
+- Set `NMEM_PLUGIN_AUTO_CONTEXT=1` before starting Pi to restore the previous eager startup context injection behavior. Shared consumers of the extension, such as OMP, keep their existing default unless the environment variable is set explicitly.
+- Keep automatic Pi conversation thread sync enabled regardless of startup context mode.
+
 ## [0.8.6] - 2026-08-13
 
 ### Fixed
