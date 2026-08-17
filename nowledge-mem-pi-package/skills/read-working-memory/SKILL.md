@@ -1,33 +1,31 @@
 ---
 name: read-working-memory
-description: "Load today's Working Memory briefing at session start. Shows your current focus areas, priorities, and recent knowledge changes across all AI tools."
+description: "Load Nowledge Context Bundle or Working Memory when prior context is relevant to the current task."
 ---
 
 # Read Working Memory
 
-Start every session with context. Use Context Bundle when owner identity, AI Identity, active scope, or rules could matter; it includes Working Memory. Use Working Memory alone for the lighter daily briefing.
+Use this skill on demand. Pi should not load Nowledge Mem context merely because a new session started.
+
+Prefer Context Bundle when owner identity, AI Identity, active scope, rules, or Working Memory could materially affect the task. Use Working Memory alone for the lighter daily briefing.
 
 ## When to Use
 
-**At session start:**
+- User asks "what am I working on?", "what's my context?", or asks about recent priorities.
+- User references earlier work, previous decisions, established preferences, or a prior session.
+- The current task clearly resumes a named project, feature, bug, refactor, incident, or workflow.
+- Historical context would materially reduce ambiguity or prevent repeating prior work.
 
-- Beginning of a new conversation
-- Returning to a project after a break
-- When context about recent work would help
+## Skip When
 
-**During session:**
-
-- User asks "what am I working on?" or "what's my context?"
-- User references recent priorities or decisions
-- Need to understand what has been happening across tools
-
-**Skip when:**
-
-- Already loaded this session
-- User explicitly wants a fresh start
-- Working on an isolated, context-independent task
+- The task is isolated and context-independent.
+- The question is generic and can be answered without user history.
+- Context Bundle or Working Memory was already loaded for the current task.
+- The user explicitly wants a fresh perspective without prior context.
 
 ## Usage
+
+For full context:
 
 ```bash
 nmem --json context --source-app pi
@@ -51,12 +49,14 @@ nmem --json wm read
 
 ### How to Use This Context
 
-1. Read once at session start. Don't re-read unless asked.
-2. If Context Bundle was already loaded and includes Working Memory, do not read Working Memory again.
-3. If the task is clearly a continuation, review, regression, release, or prior-decision question, move directly into `search-memory` after the briefing.
-4. Reference naturally when it connects to the current task.
-5. Share only the parts relevant to what the user is working on.
-6. Insights saved in other tools (Claude Code, Cursor, Codex) appear here automatically.
+1. Read the smallest context surface that answers the task.
+2. If Context Bundle includes Working Memory, do not read Working Memory again.
+3. For continuation, review, regression, release, or prior-decision questions, follow with one targeted `search-memory` call when the briefing is not enough.
+4. Reference context naturally only when it connects to the current task.
+5. Share only the relevant parts.
+6. Do not re-read unless the user asks or the session context changes materially.
+
+The Pi extension itself uses the same lazy default. Set `NMEM_PLUGIN_AUTO_CONTEXT=1` before starting Pi only if eager startup Context Bundle injection is explicitly desired.
 
 If the response includes `exists: false`, mention there's no briefing yet and continue.
 
