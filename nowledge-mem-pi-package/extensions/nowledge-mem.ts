@@ -26,6 +26,16 @@ function pluginVersion(): string {
 	return process.env.NMEM_PLUGIN_VERSION?.trim() || DEFAULT_PLUGIN_VERSION;
 }
 
+function automaticStartupContextEnabled(): boolean {
+	const configured = process.env.NMEM_PLUGIN_AUTO_CONTEXT?.trim().toLowerCase();
+	if (configured) {
+		return configured === "1" || configured === "true" || configured === "yes" || configured === "on";
+	}
+	// Pi defaults to lazy retrieval so Nowledge Mem does not add context to every
+	// model request. Shared consumers such as OMP keep their existing behavior.
+	return sourceApp() !== "pi";
+}
+
 function startupGuidance(): string {
 	const label = hostLabel();
 	const source = sourceApp();
@@ -782,10 +792,12 @@ async function appendMemoryContext(systemPrompt: string, ctx: ExtensionContext):
 
 export default function nowledgeMemPi(pi: ExtensionAPI) {
 	pi.on("session_start", async (_event, ctx) => {
+		if (!automaticStartupContextEnabled()) return;
 		await refreshStartupContext(ctx);
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => {
+		if (!automaticStartupContextEnabled()) return;
 		return { systemPrompt: await appendMemoryContext(event.systemPrompt, ctx) };
 	});
 
@@ -798,6 +810,7 @@ export default function nowledgeMemPi(pi: ExtensionAPI) {
 	});
 
 	pi.on("session_compact", async (_event, ctx) => {
+		if (!automaticStartupContextEnabled()) return;
 		await refreshStartupContext(ctx);
 	});
 
